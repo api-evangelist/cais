@@ -1,0 +1,79 @@
+generated: '2026-08-01'
+method: probed
+source: >-
+  observed HTTP behaviour of https://mcp.caisgroup.com/mcp and its OAuth endpoints,
+  plus well-known/cais-oauth-authorization-server.json
+description: >-
+  Cross-cutting runtime semantics for the only public CAIS API surface, the remote MCP
+  server. CAIS publishes no developer documentation, so every field below is either an
+  observed response property or explicitly marked unknown. Nothing has been assumed
+  from convention.
+authentication:
+  style: oauth2-bearer
+  header: 'Authorization: Bearer <token>'
+  bearer_methods_supported: [header]
+  token_acquisition: authorization_code + PKCE S256, via dynamic client registration
+  see: authentication/cais-authentication.yml
+transport:
+  protocol: MCP over HTTP (JSON-RPC 2.0)
+  endpoint: https://mcp.caisgroup.com/mcp
+  content_type: application/json
+  accept: 'application/json, text/event-stream'
+  sse_endpoint: none
+  sse_note: POST /sse returns 404; no separate SSE transport path is exposed.
+error_envelope:
+  style: oauth2 (RFC 6749 section 5.2 / RFC 6750)
+  fields: [error, error_description]
+  challenge_header: WWW-Authenticate
+  observed_example: >-
+    401 {"error": "invalid_token", "error_description": "Authentication failed. The
+    provided bearer token is invalid, expired, or no longer recognized by the server.
+    To resolve: clear authentication tokens in your MCP client and reconnect. Your
+    client should automatically re-register and obtain new tokens."}
+  remediation_in_body: true
+  remediation_note: >-
+    Notable for an agent surface: the error_description carries explicit client
+    remediation steps in prose, not just a code. This is unusually agent-friendly.
+  problem_json: false
+  see: errors/cais-problem-types.yml
+idempotency:
+  supported: unknown
+  header: null
+  note: >-
+    No idempotency key header, parameter or documentation was found. The write-side
+    scope funds:orders:create implies an order-creation path where idempotency would
+    matter, but CAIS publishes nothing about it and the surface is auth-gated. NOT
+    asserted, and no Idempotency pointer is emitted.
+pagination:
+  style: unknown
+  note: not observable anonymously; no OpenAPI published
+versioning:
+  scheme: unknown
+  current: null
+  note: >-
+    No version segment appears in the MCP endpoint path (/mcp) and no version header is
+    advertised. MCP protocol version negotiation happens in the initialize handshake,
+    which is auth-gated.
+rate_limits:
+  signalled: unknown
+  headers_observed: []
+  note: no rate-limit headers appeared on any anonymous 401/404/400 response
+request_tracing:
+  header: cf-ray
+  note: >-
+    Cloudflare's cf-ray is the only correlation identifier observed on responses; no
+    first-party request-id header is emitted anonymously.
+caching:
+  cache_control_observed: no-store
+  note: observed on the 401 from /mcp
+scopes:
+  granularity: '<domain>:<resource>:<action>'
+  count: 12
+  see: scopes/cais-scopes.yml
+x-evidence:
+  fetched: '2026-08-01'
+  observed_response_headers:
+  - 'server: cloudflare'
+  - 'cache-control: no-store'
+  - 'content-type: application/json'
+  - 'www-authenticate: Bearer error="invalid_token", ...'

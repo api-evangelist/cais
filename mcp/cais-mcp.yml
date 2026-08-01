@@ -1,0 +1,76 @@
+generated: '2026-08-01'
+method: probed
+status: published
+source: https://mcp.caisgroup.com/.well-known/oauth-protected-resource
+announcement: https://www.caisgroup.com/our-company/press/cais-integrates-with-anthropics-claude-to-give-advisors-instant-access-to-alternative-investment-intelligence
+description: >-
+  CAIS runs an official remote MCP server at https://mcp.caisgroup.com/mcp, announced
+  2026-05-19 alongside an integration with Anthropic's Claude. Per the announcement,
+  "By launching as a Model Context Protocol (MCP) server, CAIS enables advisors to
+  query fund data, analyze performance, and surface portfolio insights" from inside
+  the advisor's primary workspace rather than in a standalone CAIS application. It is
+  the first published surface of the company's "Alts Engine" strategy, which CAIS
+  describes as "expanding our AI-driven APIs" across "multiple interface layers."
+  Trade press (InvestmentNews) reports the integration is "initially available to a
+  select group of advisors within the CAIS network."
+server:
+  name: cais
+  transport: http
+  url: https://mcp.caisgroup.com/mcp
+  auth: oauth2
+  protected_resource: well-known/cais-oauth-protected-resource.json
+  authorization_server: https://mcp.caisgroup.com/
+  authorization_server_metadata: well-known/cais-oauth-authorization-server.json
+  dynamic_client_registration: https://mcp.caisgroup.com/register
+  pkce: S256
+tools:
+  status: gated
+  count: null
+  note: >-
+    NOT CAPTURED. An anonymous JSON-RPC POST of {"jsonrpc":"2.0","id":1,"method":"tools/list"}
+    to https://mcp.caisgroup.com/mcp returns HTTP 401 with
+    {"error": "invalid_token", ...} and a WWW-Authenticate Bearer challenge; the same
+    is true of an anonymous "initialize". CAIS publishes no llms.txt and no public tool
+    catalogue, so the real tool names and inputSchemas require an authenticated CAIS
+    advisor client. No tool list has been derived or inferred — the twelve OAuth scopes
+    below are the only public evidence of what the server exposes, and they are recorded
+    in scopes/cais-scopes.yml as capability domains, NOT as tools.
+capability_domains_from_scopes:
+- domain: funds
+  scopes: [funds:holdings:read, funds:orders:create, funds:products:admin-read, funds:products:advisor-read]
+  implies: fund/product catalogue reads and order creation
+- domain: caisiq
+  scopes: [caisiq:courses:list, caisiq:reporting:read]
+  implies: CAIS IQ education catalogue and reporting reads
+- domain: iam
+  scopes: [iam:firms:read, iam:teams:read, iam:users:read]
+  implies: firm / team / user directory reads
+- domain: ips
+  scopes: [ips:contacts:write, ips:profiles:read]
+  implies: investor profile reads and contact writes
+x-evidence:
+  fetched: '2026-08-01'
+  probes:
+  - url: https://mcp.caisgroup.com/mcp
+    method: POST tools/list (anonymous)
+    http_status: 401
+    body: '{"error": "invalid_token", "error_description": "Authentication failed. The
+      provided bearer token is invalid, expired, or no longer recognized by the server.
+      To resolve: clear authentication tokens in your MCP client and reconnect. Your
+      client should automatically re-register and obtain new tokens."}'
+    www_authenticate: 'Bearer error="invalid_token", resource_metadata="https://mcp.caisgroup.com/.well-known/oauth-protected-resource/mcp"'
+  - url: https://mcp.caisgroup.com/mcp
+    method: POST initialize (anonymous)
+    http_status: 401
+  - url: https://mcp.caisgroup.com/.well-known/oauth-protected-resource
+    method: GET
+    http_status: 200
+    content_type: application/json
+  - url: https://mcp.caisgroup.com/.well-known/oauth-authorization-server
+    method: GET
+    http_status: 200
+    content_type: application/json
+  - url: https://mcp.caisgroup.com/sse
+    method: POST
+    http_status: 404
+    note: no SSE transport at the conventional path

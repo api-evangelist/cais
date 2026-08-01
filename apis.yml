@@ -1,23 +1,126 @@
 aid: cais
 name: CAIS
-description: 'CAIS is a company surfaced via the API Evangelist harvest backlog (source: secondary-market)
-  and added to the network as a stub for full-pipeline profiling.'
+description: 'CAIS (Capital Integration Systems LLC) is a New York-headquartered fintech
+  company operating the leading alternative investment platform for independent wealth
+  management. Founded in 2009 by Matt Brown, CAIS connects financial advisors with
+  a curated menu of private equity, private credit, hedge fund, real estate, infrastructure,
+  structured note and precious metals strategies from third-party asset managers and
+  bank issuers, and pairs the marketplace with CAIS Solutions (a SaaS trade and post-trade
+  operating layer for RIAs, aggregators and independent broker-dealers), CAIS IQ (advisor
+  education), Compass (portfolio construction) and CAISey (an AI assistant). The platform
+  serves 2,500+ wealth management firms and 65,000+ advisors overseeing roughly $8.5
+  trillion in end-client assets, with technology integrations into major custodians
+  (Fidelity, BNY Pershing, Schwab Advisor Services, Goldman Sachs Custody Solutions),
+  reporting providers (Addepar, Black Diamond, Envestnet, Orion, Tamarac) and 30+ fund
+  administrators, plus DTCC AIP reporting. In May 2026 CAIS launched a remote Model
+  Context Protocol (MCP) server as part of its "Alts Engine" strategy, exposing fund,
+  holdings, education and identity data to AI agents over OAuth 2.1.'
+image: https://www.caisgroup.com/favicon.ico
 url: https://raw.githubusercontent.com/api-evangelist/cais/refs/heads/main/apis.yml
 x-type: company
 x-source: harvest:secondary-market
-x-tier: stub
-x-tier-reason: harvest
 specificationVersion: '0.20'
 created: '2026-08-01'
 modified: '2026-08-01'
 tags:
 - Company
-apis: []
+- Alternative Investments
+- Wealth Management
+- Financial Services
+- Fintech
+- Private Markets
+- Asset Management
+- Structured Products
+- Investment Platform
+- Artificial Intelligence
+apis:
+- aid: cais:cais-mcp-server
+  name: CAIS MCP Server
+  description: >-
+    CAIS operates a remote Model Context Protocol server at https://mcp.caisgroup.com/mcp,
+    announced 2026-05-19 as the first surface of the company's "Alts Engine" strategy and
+    initially available to a select group of advisors within the CAIS network. It lets an
+    agent query fund data, evaluate manager performance and surface portfolio insights from
+    inside an advisor's existing workspace. The endpoint is protected by OAuth 2.1 with
+    RFC 9728 protected-resource metadata, dynamic client registration (RFC 7591) and PKCE
+    S256; twelve scopes are advertised across four service domains (caisiq, funds, iam, ips).
+    tools/list is auth-gated — an anonymous JSON-RPC call returns HTTP 401 invalid_token —
+    so the live tool schemas require an authenticated CAIS advisor client.
+  humanURL: https://www.caisgroup.com/our-company/press/cais-integrates-with-anthropics-claude-to-give-advisors-instant-access-to-alternative-investment-intelligence
+  baseURL: https://mcp.caisgroup.com/mcp
+  tags:
+  - MCP
+  - Alternative Investments
+  - Artificial Intelligence
+  properties:
+  - type: MCPServer
+    url: mcp/cais-mcp.yml
+  - type: OAuthScopes
+    url: scopes/cais-scopes.yml
+  - type: Authentication
+    url: authentication/cais-authentication.yml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: DomainSecurity
+  url: security/cais-domain-security.yml
+- type: MCPServer
+  url: mcp/cais-mcp.yml
+- type: WellKnown
+  url: well-known/cais-well-known.yml
+- type: Authentication
+  url: authentication/cais-authentication.yml
+- type: OAuthScopes
+  url: scopes/cais-scopes.yml
+- type: Conformance
+  url: conformance/cais-conformance.yml
+- type: Conventions
+  url: conventions/cais-conventions.yml
+- type: ErrorCatalog
+  url: errors/cais-problem-types.yml
+- type: LLMsTxt
+  url: llms/cais-llms.txt
 - type: Website
+  url: https://www.caisgroup.com/
+- type: SecondaryMarket
   url: https://forgeglobal.com/cais_stock/
+- type: DeveloperPortal
+  url: https://www.caisgroup.com/financial-advisor/how-we-partner/integrations
+- type: Documentation
+  url: https://www.caisgroup.com/financial-advisor/cais-platform/cais-solutions
+- type: Support
+  url: https://www.caisgroup.com/contact
+- type: Blog
+  url: https://www.caisgroup.com/insights
+- type: SignUp
+  url: https://www.caisgroup.com/sign-up
+- type: Login
+  url: https://members.caisgroup.com
+- type: TermsOfService
+  url: https://www.caisgroup.com/legal/terms-of-use
+- type: PrivacyPolicy
+  url: https://www.caisgroup.com/legal/privacy-policy
+- type: Accessibility
+  url: https://www.caisgroup.com/legal/accessibility-commitment
+- type: BusinessContinuity
+  url: https://www.caisgroup.com/legal/business-continuity-plan
+- type: Press
+  url: https://www.caisgroup.com/our-company/press
+- type: Podcast
+  url: https://www.caisgroup.com/podcast
+- type: CaseStudies
+  url: https://www.caisgroup.com/case-studies
+- type: Careers
+  url: https://www.caisgroup.com/our-company/careers
+- type: LinkedIn
+  url: https://www.linkedin.com/company/cais
+- type: Integrations
+  url: https://www.caisgroup.com/financial-advisor/how-we-partner/integrations
+x-enrichment:
+  date: '2026-08-01'
+  status: enriched
+  artifacts_added: 12
+  pass: local-v1

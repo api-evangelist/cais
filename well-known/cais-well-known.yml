@@ -1,0 +1,121 @@
+generated: '2026-08-01'
+method: probed
+source: live GET probes of /.well-known/* across every CAIS host
+description: >-
+  Well-known discovery surface probed across every CAIS host found in apis.yml. The
+  MCP host (mcp.caisgroup.com) publishes a full RFC 9728 protected-resource document
+  and an RFC 8414 authorization-server document anonymously; the Auth0 tenant behind
+  login.caisgroup.com publishes standard OIDC discovery. The marketing site and the
+  members SPA publish nothing — note that members.caisgroup.com answers HTTP 200 with
+  an HTML application shell for EVERY /.well-known/* path, which is a false positive,
+  not a discovery document.
+hosts:
+- host: https://mcp.caisgroup.com
+  role: MCP server
+  documents:
+  - path: /.well-known/oauth-protected-resource
+    spec: RFC 9728
+    status: 200
+    content_type: application/json
+    file: cais-oauth-protected-resource.json
+  - path: /.well-known/oauth-authorization-server
+    spec: RFC 8414
+    status: 200
+    content_type: application/json
+    file: cais-oauth-authorization-server.json
+  - path: /.well-known/oauth-protected-resource/mcp
+    status: 404
+    note: >-
+      The WWW-Authenticate challenge on /mcp advertises resource_metadata at this
+      per-resource path, but the path itself 404s; the document is served from the
+      unsuffixed /.well-known/oauth-protected-resource instead.
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/mcp.json
+    status: 404
+- host: https://login.caisgroup.com
+  role: Auth0 identity tenant (custom domain) for the CAIS member platform
+  documents:
+  - path: /.well-known/openid-configuration
+    spec: OpenID Connect Discovery 1.0
+    status: 200
+    content_type: application/json
+    file: cais-openid-configuration.json
+  - path: /.well-known/oauth-authorization-server
+    spec: RFC 8414
+    status: 200
+    note: identical payload to the OIDC discovery document
+  - path: /.well-known/jwks.json
+    spec: RFC 7517
+    status: 200
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+- host: https://www.caisgroup.com
+  role: marketing / corporate site
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /robots.txt
+    status: 200
+  - path: /sitemap.xml
+    status: 200
+- host: https://members.caisgroup.com
+  role: authenticated member application (SPA)
+  documents:
+  - path: /.well-known/agent-card.json
+    status: 200
+    accepted: false
+    note: >-
+      REJECTED as a false positive. The SPA catch-all returns HTTP 200 with an
+      "<!doctype html>" application shell for every path probed, including
+      /.well-known/agent.json, /.well-known/security.txt, /openapi.json and
+      /llms.txt. No JSON document is served.
+  - path: /.well-known/agent.json
+    status: 200
+    accepted: false
+    note: SPA catch-all HTML, not an agent card.
+x-evidence:
+  fetched: '2026-08-01'
+  method: curl GET, following redirects, 20s timeout
+  hosts_probed:
+  - www.caisgroup.com
+  - caisgroup.com
+  - mcp.caisgroup.com
+  - login.caisgroup.com
+  - members.caisgroup.com
+  nxdomain:
+  - api.caisgroup.com
+  - developer.caisgroup.com
+  - developers.caisgroup.com
+  - docs.caisgroup.com
+  - apidocs.caisgroup.com
+  - status.caisgroup.com
+  - trust.caisgroup.com
+  - security.caisgroup.com
+security_txt: none

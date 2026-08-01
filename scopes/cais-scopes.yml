@@ -1,0 +1,113 @@
+generated: '2026-08-01'
+method: probed
+source: https://mcp.caisgroup.com/.well-known/oauth-protected-resource
+also: https://mcp.caisgroup.com/.well-known/oauth-authorization-server
+description: >-
+  Twelve OAuth scopes advertised anonymously by the CAIS MCP server's RFC 9728
+  protected-resource metadata and repeated verbatim in its RFC 8414 authorization-server
+  metadata. CAIS publishes no scopes reference page, so descriptions below are read
+  directly from the scope strings' own domain:resource:action grammar and are marked
+  as such — nothing has been invented beyond what the scope name states.
+schemes:
+- name: mcp-oauth
+  type: oauth2
+  source: well-known/cais-oauth-protected-resource.json
+  resource: https://mcp.caisgroup.com/mcp
+  bearer_methods_supported: [header]
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://mcp.caisgroup.com/authorize
+    tokenUrl: https://mcp.caisgroup.com/token
+    revocationUrl: https://mcp.caisgroup.com/revoke
+    registrationUrl: https://mcp.caisgroup.com/register
+    code_challenge_methods: [S256]
+    grant_types: [authorization_code, refresh_token]
+scope_grammar: '<domain>:<resource>:<action>'
+domains:
+- id: caisiq
+  label: CAIS IQ — advisor education and reporting
+- id: funds
+  label: Fund and product catalogue, holdings and orders
+- id: iam
+  label: Identity and access — firms, teams, users
+- id: ips
+  label: Investor profile service — profiles and contacts
+scopes:
+- scope: openid
+  description: Standard OpenID Connect scope; requests an ID token for the authenticated advisor.
+  domain: null
+  action: identity
+  sources: [well-known/cais-oauth-protected-resource.json]
+- scope: caisiq:courses:list
+  description: List CAIS IQ education courses.
+  domain: caisiq
+  action: list
+  sources: [well-known/cais-oauth-protected-resource.json]
+- scope: caisiq:reporting:read
+  description: Read CAIS IQ reporting.
+  domain: caisiq
+  action: read
+  sources: [well-known/cais-oauth-protected-resource.json]
+- scope: funds:holdings:read
+  description: Read fund holdings.
+  domain: funds
+  action: read
+  sources: [well-known/cais-oauth-protected-resource.json]
+- scope: funds:orders:create
+  description: Create fund orders. The only write-side transactional scope advertised.
+  domain: funds
+  action: create
+  write: true
+  sources: [well-known/cais-oauth-protected-resource.json]
+- scope: funds:products:admin-read
+  description: Read the fund product catalogue with administrator visibility.
+  domain: funds
+  action: admin-read
+  sources: [well-known/cais-oauth-protected-resource.json]
+- scope: funds:products:advisor-read
+  description: Read the fund product catalogue with advisor visibility.
+  domain: funds
+  action: advisor-read
+  sources: [well-known/cais-oauth-protected-resource.json]
+- scope: iam:firms:read
+  description: Read firm records.
+  domain: iam
+  action: read
+  sources: [well-known/cais-oauth-protected-resource.json]
+- scope: iam:teams:read
+  description: Read team records.
+  domain: iam
+  action: read
+  sources: [well-known/cais-oauth-protected-resource.json]
+- scope: iam:users:read
+  description: Read user records.
+  domain: iam
+  action: read
+  sources: [well-known/cais-oauth-protected-resource.json]
+- scope: ips:contacts:write
+  description: Write investor contacts.
+  domain: ips
+  action: write
+  write: true
+  sources: [well-known/cais-oauth-protected-resource.json]
+- scope: ips:profiles:read
+  description: Read investor profiles.
+  domain: ips
+  action: read
+  sources: [well-known/cais-oauth-protected-resource.json]
+summary:
+  total: 12
+  read_scopes: 9
+  write_scopes: 2
+  identity_scopes: 1
+  note: >-
+    The scope surface is read-dominant. Only funds:orders:create and ips:contacts:write
+    mutate state, which is a meaningful agent-safety property: an agent granted the
+    default read set cannot place an order.
+x-evidence:
+  fetched: '2026-08-01'
+  url: https://mcp.caisgroup.com/.well-known/oauth-protected-resource
+  http_status: 200
+  content_type: application/json
+docs: null
+docs_note: CAIS publishes no public OAuth scopes reference page as of this probe.

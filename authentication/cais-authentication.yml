@@ -1,0 +1,86 @@
+generated: '2026-08-01'
+method: probed
+source: >-
+  https://mcp.caisgroup.com/.well-known/oauth-authorization-server,
+  https://mcp.caisgroup.com/.well-known/oauth-protected-resource,
+  https://login.caisgroup.com/.well-known/openid-configuration
+description: >-
+  CAIS runs two distinct identity surfaces. (1) The MCP server at mcp.caisgroup.com
+  is its own OAuth 2.1 authorization server: authorization-code + PKCE S256, refresh
+  tokens, RFC 7591 dynamic client registration, RFC 7009 revocation, RFC 9728
+  protected-resource metadata, and bearer tokens in the Authorization header only.
+  It supports client_id metadata documents. (2) The member platform behind
+  members.caisgroup.com authenticates through an Auth0 tenant on the custom domain
+  login.caisgroup.com, which publishes full OpenID Connect Discovery 1.0 metadata
+  including MFA challenge and device-authorization endpoints. No API key, HTTP basic,
+  or mutualTLS scheme is advertised on any public CAIS surface.
+summary:
+  types: [oauth2, openIdConnect]
+  api_key_in: []
+  oauth2_flows: [authorizationCode]
+  bearer_in: [header]
+  pkce: [S256]
+  dynamic_client_registration: true
+  mfa: true
+schemes:
+- name: cais-mcp-oauth
+  type: oauth2
+  applies_to: https://mcp.caisgroup.com/mcp
+  issuer: https://mcp.caisgroup.com/
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://mcp.caisgroup.com/authorize
+    tokenUrl: https://mcp.caisgroup.com/token
+    revocationUrl: https://mcp.caisgroup.com/revoke
+    registrationUrl: https://mcp.caisgroup.com/register
+    scope_count: 12
+  grant_types_supported: [authorization_code, refresh_token]
+  response_types_supported: [code]
+  code_challenge_methods_supported: [S256]
+  token_endpoint_auth_methods_supported: [client_secret_post, client_secret_basic]
+  revocation_endpoint_auth_methods_supported: [client_secret_post, client_secret_basic]
+  client_id_metadata_document_supported: true
+  bearer_methods_supported: [header]
+  protected_resource_metadata: well-known/cais-oauth-protected-resource.json
+  sources: [well-known/cais-oauth-authorization-server.json]
+- name: cais-members-oidc
+  type: openIdConnect
+  applies_to: https://members.caisgroup.com
+  provider: Auth0 (custom domain)
+  issuer: https://login.caisgroup.com/
+  openIdConnectUrl: https://login.caisgroup.com/.well-known/openid-configuration
+  authorizationUrl: https://login.caisgroup.com/authorize
+  tokenUrl: https://login.caisgroup.com/oauth/token
+  userinfoUrl: https://login.caisgroup.com/userinfo
+  jwksUri: https://login.caisgroup.com/.well-known/jwks.json
+  registrationUrl: https://login.caisgroup.com/oidc/register
+  revocationUrl: https://login.caisgroup.com/oauth/revoke
+  device_authorization_endpoint: https://login.caisgroup.com/oauth/device/code
+  mfa_challenge_endpoint: https://login.caisgroup.com/mfa/challenge
+  scopes_supported: [openid, profile, offline_access, name, given_name, family_name,
+    nickname, email, email_verified, picture, created_at, identities, phone, address]
+  code_challenge_methods_supported: [S256, plain]
+  token_endpoint_auth_methods_supported: [client_secret_basic, client_secret_post,
+    private_key_jwt, none]
+  sources: [well-known/cais-openid-configuration.json]
+observations:
+- >-
+  The MCP server's WWW-Authenticate challenge points resource_metadata at
+  https://mcp.caisgroup.com/.well-known/oauth-protected-resource/mcp, but that
+  suffixed path returns 404; the document is only reachable at the unsuffixed
+  /.well-known/oauth-protected-resource. A strictly conformant RFC 9728 client that
+  follows the advertised URL will fail to resolve the metadata.
+- >-
+  The MCP authorization server advertises no OIDC discovery document of its own
+  (/.well-known/openid-configuration returns 404) despite advertising the "openid"
+  scope.
+docs: null
+docs_note: CAIS publishes no public developer authentication documentation.
+x-evidence:
+  fetched: '2026-08-01'
+  probes:
+  - {url: 'https://mcp.caisgroup.com/.well-known/oauth-authorization-server', http_status: 200}
+  - {url: 'https://mcp.caisgroup.com/.well-known/oauth-protected-resource', http_status: 200}
+  - {url: 'https://mcp.caisgroup.com/.well-known/oauth-protected-resource/mcp', http_status: 404}
+  - {url: 'https://login.caisgroup.com/.well-known/openid-configuration', http_status: 200}
+  - {url: 'https://login.caisgroup.com/.well-known/jwks.json', http_status: 200}

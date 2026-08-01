@@ -1,0 +1,71 @@
+generated: '2026-08-01'
+method: probed
+source: live anonymous probes of https://mcp.caisgroup.com/*
+format: oauth2-error
+format_note: >-
+  NOT RFC 9457. Errors on the CAIS MCP surface use the OAuth 2.0 error envelope
+  ({"error", "error_description"}, RFC 6749 section 5.2 / RFC 6750) with
+  Content-Type: application/json and, on 401, a matching WWW-Authenticate Bearer
+  challenge. CAIS publishes no error reference, so this catalogue contains ONLY errors
+  actually observed in a probe — it is not a complete list of the server's errors, and
+  no error has been inferred.
+envelope:
+  fields:
+  - name: error
+    type: string
+    description: OAuth error code
+  - name: error_description
+    type: string
+    description: Human-readable description; on CAIS it also carries client remediation instructions.
+problems:
+- status: 401
+  error: invalid_token
+  title: Authentication failed
+  detail: >-
+    Authentication failed. The provided bearer token is invalid, expired, or no longer
+    recognized by the server. To resolve: clear authentication tokens in your MCP
+    client and reconnect. Your client should automatically re-register and obtain new
+    tokens.
+  remediation: Clear tokens in the MCP client and reconnect; the client re-registers via RFC 7591 dynamic client registration and obtains new tokens.
+  www_authenticate: 'Bearer error="invalid_token", error_description="...", resource_metadata="https://mcp.caisgroup.com/.well-known/oauth-protected-resource/mcp"'
+  observed_on:
+  - 'POST https://mcp.caisgroup.com/mcp (method: tools/list, no Authorization header)'
+  - 'POST https://mcp.caisgroup.com/mcp (method: initialize, no Authorization header)'
+- status: 400
+  error: invalid_request
+  title: Missing required authorization parameters
+  detail: 'client_id: Field required / response_type: Field required / code_challenge: ...'
+  remediation: Supply client_id, response_type and a PKCE code_challenge on the authorization request.
+  observed_on:
+  - GET https://mcp.caisgroup.com/authorize (no parameters)
+- status: 404
+  error: null
+  title: Not found
+  detail: '404 page not found'
+  content_type: text/plain
+  note: >-
+    Plain-text, non-JSON. The server returns this for every unrouted path, including
+    /, /sse, /health, /docs, /openapi.json, /llms.txt and the per-resource
+    /.well-known/oauth-protected-resource/mcp path its own challenge advertises.
+  observed_on:
+  - GET https://mcp.caisgroup.com/
+  - POST https://mcp.caisgroup.com/sse
+  - GET https://mcp.caisgroup.com/.well-known/oauth-protected-resource/mcp
+- status: 405
+  error: null
+  title: Method Not Allowed
+  detail: 'Method Not Allowed'
+  content_type: text/plain
+  note: The dynamic client registration endpoint accepts POST only.
+  observed_on:
+  - GET https://mcp.caisgroup.com/register
+coverage:
+  observed: 4
+  complete: false
+  note: >-
+    The authenticated tool surface was not exercised, so business-level errors (fund
+    not found, order rejected, insufficient scope) are not represented here. No
+    OpenAPI exists to derive them from.
+x-evidence:
+  fetched: '2026-08-01'
+  method: anonymous curl probes, bodies recorded verbatim
