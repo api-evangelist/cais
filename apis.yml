@@ -15,6 +15,17 @@ description: 'CAIS (Capital Integration Systems LLC) is a New York-headquartered
   administrators, plus DTCC AIP reporting. In May 2026 CAIS launched a remote Model
   Context Protocol (MCP) server as part of its "Alts Engine" strategy, exposing fund,
   holdings, education and identity data to AI agents over OAuth 2.1.'
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: false
+  label: Hosted service · you call their endpoint
+  confidence: medium
+  source:
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 image: https://www.caisgroup.com/favicon.ico
 url: https://raw.githubusercontent.com/api-evangelist/cais/refs/heads/main/apis.yml
 x-type: company
