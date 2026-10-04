@@ -51,7 +51,7 @@ tags:
 - Company
 - Alternative Investments
 - Wealth Management
-- Financial-Services
+- Financial Services
 - Fintech
 - Private Markets
 - Asset Management
@@ -69,6 +69,7 @@ tags_raw:
 - Structured Products
 - Investment Platform
 - Artificial Intelligence
+- Financial-Services
 apis:
 - aid: cais:cais-mcp-server
   name: CAIS MCP Server
